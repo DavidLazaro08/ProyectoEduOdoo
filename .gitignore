@@ -1,0 +1,35 @@
+# --- Windows ---
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# --- Python / venv ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+env/
+
+# --- Odoo runtime / logs ---
+*.log
+*.pid
+*.pyc
+
+# --- Odoo filestore / sessions / data (NO versionar) ---
+filestore/
+sessions/
+*.sqlite
+*.db
+
+# --- IDEs ---
+.vscode/
+.idea/
+*.iml
+
+# --- Odoo build caches ---
+*.po~
+*.pot~
