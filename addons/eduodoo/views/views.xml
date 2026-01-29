@@ -1,60 +1,413 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <data>
-    <!-- explicit list view definition -->
-<!--
-    <record model="ir.ui.view" id="eduodoo.list">
-      <field name="name">eduodoo list</field>
-      <field name="model">eduodoo.eduodoo</field>
+
+    <!-- =========================
+         CURSO
+    ========================== -->
+    <record id="view_eduodoo_curso_list" model="ir.ui.view">
+      <field name="name">eduodoo.curso.list</field>
+      <field name="model">eduodoo.curso</field>
       <field name="arch" type="xml">
         <list>
           <field name="name"/>
-          <field name="value"/>
-          <field name="value2"/>
+          <field name="level"/>
+          <field name="price"/>
         </list>
       </field>
     </record>
--->
 
-    <!-- actions opening views on models -->
-<!--
-    <record model="ir.actions.act_window" id="eduodoo.action_window">
-      <field name="name">eduodoo window</field>
-      <field name="res_model">eduodoo.eduodoo</field>
-      <field name="view_mode">list,form</field>
-    </record>
--->
+    <record id="view_eduodoo_curso_form" model="ir.ui.view">
+      <field name="name">eduodoo.curso.form</field>
+      <field name="model">eduodoo.curso</field>
+      <field name="arch" type="xml">
+        <form string="Curso">
+          <sheet>
+            <group>
+              <field name="name"/>
+              <field name="level"/>
+              <field name="price"/>
+            </group>
+            <group>
+              <field name="description"/>
+            </group>
 
-    <!-- server action to the one above -->
-<!--
-    <record model="ir.actions.server" id="eduodoo.action_server">
-      <field name="name">eduodoo server</field>
-      <field name="model_id" ref="model_eduodoo_eduodoo"/>
-      <field name="state">code</field>
-      <field name="code">
-        action = {
-          "type": "ir.actions.act_window",
-          "view_mode": "list,form",
-          "res_model": model._name,
-        }
+            <notebook>
+              <page string="Sesiones">
+                <field name="sesion_ids">
+                  <list>
+                    <field name="fecha_inicio"/>
+                    <field name="duracion_horas"/>
+                    <field name="clase_id"/>
+                    <field name="profesor_id"/>
+                    <field name="asientos"/>
+                  </list>
+                </field>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
       </field>
     </record>
--->
 
-    <!-- Top menu item -->
-<!--
-    <menuitem name="eduodoo" id="eduodoo.menu_root"/>
--->
-    <!-- menu categories -->
-<!--
-    <menuitem name="Menu 1" id="eduodoo.menu_1" parent="eduodoo.menu_root"/>
-    <menuitem name="Menu 2" id="eduodoo.menu_2" parent="eduodoo.menu_root"/>
--->
-    <!-- actions -->
-<!--
-    <menuitem name="List" id="eduodoo.menu_1_list" parent="eduodoo.menu_1"
-              action="eduodoo.action_window"/>
-    <menuitem name="Server to list" id="eduodoo" parent="eduodoo.menu_2"
-              action="eduodoo.action_server"/>
--->
+    <record id="action_eduodoo_curso" model="ir.actions.act_window">
+      <field name="name">Cursos</field>
+      <field name="res_model">eduodoo.curso</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+
+    <!-- =========================
+         SESIÓN
+    ========================== -->
+    <record id="view_eduodoo_sesion_list" model="ir.ui.view">
+      <field name="name">eduodoo.sesion.list</field>
+      <field name="model">eduodoo.sesion</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="name"/>
+          <field name="curso_id"/>
+          <field name="clase_id"/>
+          <field name="profesor_id"/>
+          <field name="asientos"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="view_eduodoo_sesion_form" model="ir.ui.view">
+      <field name="name">eduodoo.sesion.form</field>
+      <field name="model">eduodoo.sesion</field>
+      <field name="arch" type="xml">
+        <form string="Sesión">
+          <sheet>
+
+            <!-- Nombre computado (para que se vea claro arriba) -->
+            <group>
+              <field name="name" readonly="1"/>
+            </group>
+
+            <group>
+              <field name="curso_id"/>
+              <field name="clase_id"/>
+              <field name="profesor_id"/>
+            </group>
+            <group>
+              <field name="fecha_inicio"/>
+              <field name="duracion_horas"/>
+              <field name="asientos"/>
+            </group>
+
+            <notebook>
+              <page string="Matrículas">
+                <field name="matricula_ids">
+                  <list editable="bottom">
+                    <field name="alumno_id"/>
+                    <field name="fecha_matricula"/>
+                    <field name="estado_pago"/>
+                  </list>
+                </field>
+              </page>
+
+              <page string="Alumnos (vista rápida)">
+                <field name="alumno_ids" widget="many2many_tags" readonly="1"/>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="action_eduodoo_sesion" model="ir.actions.act_window">
+      <field name="name">Sesiones</field>
+      <field name="res_model">eduodoo.sesion</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+
+    <!-- =========================
+         ALUMNO
+    ========================== -->
+    <record id="view_eduodoo_alumno_list" model="ir.ui.view">
+      <field name="name">eduodoo.alumno.list</field>
+      <field name="model">eduodoo.alumno</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="nombre"/>
+          <field name="apellidos"/>
+          <field name="email"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="view_eduodoo_alumno_form" model="ir.ui.view">
+      <field name="name">eduodoo.alumno.form</field>
+      <field name="model">eduodoo.alumno</field>
+      <field name="arch" type="xml">
+        <form string="Alumno">
+          <sheet>
+            <group>
+              <field name="nombre"/>
+              <field name="apellidos"/>
+              <field name="email"/>
+            </group>
+
+            <notebook>
+              <page string="Matrículas">
+                <field name="matricula_ids">
+                  <list editable="bottom">
+                    <field name="sesion_id"/>
+                    <field name="fecha_matricula"/>
+                    <field name="estado_pago"/>
+                  </list>
+                </field>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="action_eduodoo_alumno" model="ir.actions.act_window">
+      <field name="name">Alumnos</field>
+      <field name="res_model">eduodoo.alumno</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+
+    <!-- =========================
+         CLASE / GRUPO
+    ========================== -->
+    <record id="view_eduodoo_clase_list" model="ir.ui.view">
+      <field name="name">eduodoo.clase.list</field>
+      <field name="model">eduodoo.clase</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="nombre"/>
+          <field name="horario"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="view_eduodoo_clase_form" model="ir.ui.view">
+      <field name="name">eduodoo.clase.form</field>
+      <field name="model">eduodoo.clase</field>
+      <field name="arch" type="xml">
+        <form string="Clase / Grupo">
+          <sheet>
+            <group>
+              <field name="nombre"/>
+              <field name="horario"/>
+            </group>
+
+            <group string="Sesiones">
+              <field name="sesion_ids">
+                <list>
+                  <field name="fecha_inicio"/>
+                  <field name="curso_id"/>
+                  <field name="profesor_id"/>
+                  <field name="asientos"/>
+                </list>
+              </field>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="action_eduodoo_clase" model="ir.actions.act_window">
+      <field name="name">Clases / Grupos</field>
+      <field name="res_model">eduodoo.clase</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+
+    <!-- =========================
+         PROFESOR
+    ========================== -->
+    <record id="view_eduodoo_profesor_list" model="ir.ui.view">
+      <field name="name">eduodoo.profesor.list</field>
+      <field name="model">eduodoo.profesor</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="nombre"/>
+          <field name="titulacion"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="view_eduodoo_profesor_form" model="ir.ui.view">
+      <field name="name">eduodoo.profesor.form</field>
+      <field name="model">eduodoo.profesor</field>
+      <field name="arch" type="xml">
+        <form string="Profesor">
+          <sheet>
+            <group>
+              <field name="nombre"/>
+              <field name="titulacion"/>
+            </group>
+
+            <notebook>
+              <page string="Cursos">
+                <field name="curso_ids" widget="many2many_tags"/>
+              </page>
+              <page string="Sesiones">
+                <field name="sesion_ids">
+                  <list>
+                    <field name="fecha_inicio"/>
+                    <field name="curso_id"/>
+                    <field name="clase_id"/>
+                    <field name="asientos"/>
+                  </list>
+                </field>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="action_eduodoo_profesor" model="ir.actions.act_window">
+      <field name="name">Profesores</field>
+      <field name="res_model">eduodoo.profesor</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+
+    <!-- =========================
+         FACTURA
+    ========================== -->
+    <record id="view_eduodoo_factura_list" model="ir.ui.view">
+      <field name="name">eduodoo.factura.list</field>
+      <field name="model">eduodoo.factura</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="fecha_pago"/>
+          <field name="matricula_id"/>
+          <field name="alumno_id"/>
+          <field name="sesion_id"/>
+          <field name="cantidad"/>
+          <field name="concepto"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="view_eduodoo_factura_form" model="ir.ui.view">
+      <field name="name">eduodoo.factura.form</field>
+      <field name="model">eduodoo.factura</field>
+      <field name="arch" type="xml">
+        <form string="Factura">
+          <sheet>
+            <group>
+              <field name="matricula_id"/>
+            </group>
+
+            <group>
+              <field name="alumno_id" readonly="1"/>
+              <field name="sesion_id" readonly="1"/>
+            </group>
+
+            <group>
+              <field name="cantidad"/>
+              <field name="fecha_pago"/>
+              <field name="concepto"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="action_eduodoo_factura" model="ir.actions.act_window">
+      <field name="name">Facturas</field>
+      <field name="res_model">eduodoo.factura</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+
+    <!-- =========================
+        MATRÍCULA
+    ========================== -->
+    <record id="view_eduodoo_matricula_list" model="ir.ui.view">
+      <field name="name">eduodoo.matricula.list</field>
+      <field name="model">eduodoo.matricula</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="name"/>
+          <field name="alumno_id"/>
+          <field name="sesion_id"/>
+          <field name="fecha_matricula"/>
+          <field name="estado_pago"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="view_eduodoo_matricula_form" model="ir.ui.view">
+      <field name="name">eduodoo.matricula.form</field>
+      <field name="model">eduodoo.matricula</field>
+      <field name="arch" type="xml">
+        <form string="Matrícula">
+
+          <!-- BOTÓN -->
+          <header>
+            <button name="action_crear_factura"
+                    string="Crear / Ver factura"
+                    type="object"
+                    class="btn-primary"/>
+          </header>
+
+          <sheet>
+
+            <!-- Nombre computado (para que no salga “sin nombre” y se vea arriba) -->
+            <group>
+              <field name="name" readonly="1"/>
+            </group>
+
+            <group>
+              <field name="alumno_id"/>
+              <field name="sesion_id"/>
+            </group>
+
+            <group>
+              <field name="fecha_matricula"/>
+              <field name="estado_pago"/>
+            </group>
+
+            <!-- OPCIONAL (recomendado): pestaña para ver la factura asociada -->
+            <notebook>
+              <page string="Facturas">
+                <field name="factura_ids" readonly="1">
+                  <list>
+                    <field name="name"/>
+                    <field name="fecha_pago"/>
+                    <field name="cantidad"/>
+                    <field name="concepto"/>
+                  </list>
+                </field>
+              </page>
+            </notebook>
+
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="action_eduodoo_matricula" model="ir.actions.act_window">
+      <field name="name">Matrículas</field>
+      <field name="res_model">eduodoo.matricula</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- =========================
+         MENÚS
+    ========================== -->
+    <menuitem id="menu_eduodoo_root" name="EduOdoo" sequence="10"/>
+
+    <menuitem id="menu_eduodoo_curso" name="Cursos" parent="menu_eduodoo_root" action="action_eduodoo_curso" sequence="10"/>
+    <menuitem id="menu_eduodoo_sesion" name="Sesiones" parent="menu_eduodoo_root" action="action_eduodoo_sesion" sequence="20"/>
+    <menuitem id="menu_eduodoo_clase" name="Clases / Grupos" parent="menu_eduodoo_root" action="action_eduodoo_clase" sequence="30"/>
+    <menuitem id="menu_eduodoo_profesor" name="Profesores" parent="menu_eduodoo_root" action="action_eduodoo_profesor" sequence="40"/>
+    <menuitem id="menu_eduodoo_alumno" name="Alumnos" parent="menu_eduodoo_root" action="action_eduodoo_alumno" sequence="50"/>
+    <menuitem id="menu_eduodoo_matricula" name="Matrículas" parent="menu_eduodoo_root" action="action_eduodoo_matricula" sequence="60"/>
+    <menuitem id="menu_eduodoo_factura" name="Facturas" parent="menu_eduodoo_root" action="action_eduodoo_factura" sequence="70"/>
+
   </data>
 </odoo>

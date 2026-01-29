@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields
 
-
+# Modelo Curso: datos básicos del curso y sus sesiones asociadas.
 class EduodooCurso(models.Model):
     _name = "eduodoo.curso"
     _description = "Curso"
@@ -22,3 +22,9 @@ class EduodooCurso(models.Model):
         default="a1",
     )
     price = fields.Float(string="Precio", required=True, default=0.0)
+
+    sesion_ids = fields.One2many(
+        comodel_name="eduodoo.sesion",
+        inverse_name="curso_id",
+        string="Sesiones",
+    )

@@ -1,3 +1,8 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_eduodoo_curso,eduodoo.curso,model_eduodoo_curso,base.group_user,1,1,1,1
 access_eduodoo_sesion,eduodoo.sesion,model_eduodoo_sesion,base.group_user,1,1,1,1
+access_eduodoo_alumno,eduodoo.alumno,model_eduodoo_alumno,base.group_user,1,1,1,1
+access_eduodoo_profesor,eduodoo.profesor,model_eduodoo_profesor,base.group_user,1,1,1,1
+access_eduodoo_clase,eduodoo.clase,model_eduodoo_clase,base.group_user,1,1,1,1
+access_eduodoo_matricula,eduodoo.matricula,model_eduodoo_matricula,base.group_user,1,1,1,1
+access_eduodoo_factura,eduodoo.factura,model_eduodoo_factura,base.group_user,1,1,1,1
