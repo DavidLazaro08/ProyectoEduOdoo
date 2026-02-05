@@ -48,7 +48,7 @@ class EduodooSesion(models.Model):
     # -------------------------------
     # Semana 2: Campos computados
     # -------------------------------
-
+    # VS2
     # Número de plazas ocupadas: cuántas matrículas hay en la sesión
     plazas_ocupadas = fields.Integer(
         string="Plazas ocupadas",
@@ -74,7 +74,7 @@ class EduodooSesion(models.Model):
     # -------------------------------
     # Compute name / alumnos
     # -------------------------------
-
+   
     @api.depends("curso_id", "curso_id.name", "fecha_inicio", "clase_id", "clase_id.nombre")
     def _compute_name(self):
         for rec in self:
@@ -97,6 +97,8 @@ class EduodooSesion(models.Model):
     def _compute_alumno_ids(self):
         for rec in self:
             rec.alumno_ids = rec.matricula_ids.mapped("alumno_id")
+
+    # VS2
 
     @api.depends("matricula_ids", "asientos")
     def _compute_ocupacion(self):

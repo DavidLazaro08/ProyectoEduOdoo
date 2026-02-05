@@ -14,6 +14,7 @@ class EduodooMatricula(models.Model):
     # -------------------------------
     # Semana 2: Flujo de estados
     # -------------------------------
+     # VS2
     state = fields.Selection(
         selection=[
             ("draft", "Borrador"),
