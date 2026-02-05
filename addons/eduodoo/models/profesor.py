@@ -10,6 +10,7 @@ class EduodooProfesor(models.Model):
     nombre = fields.Char(string="Nombre", required=True)
     titulacion = fields.Char(string="Titulación")
 
+# V3:
     curso_ids = fields.Many2many(
         comodel_name="eduodoo.curso",
         relation="eduodoo_profesor_curso_rel",

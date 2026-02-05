@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
+from datetime import timedelta
 
-# Sesión (en realidad: Convocatoria/Edición del curso):
+
+# Sesión (Convocatoria/Edición del curso):
 # Un curso puede abrir varias convocatorias (grupo tarde/mañana, fechas, plazas, profe...)
 class EduodooSesion(models.Model):
     _name = "eduodoo.sesion"
@@ -18,7 +21,7 @@ class EduodooSesion(models.Model):
     # Plazas disponibles para esa convocatoria
     asientos = fields.Integer(string="Plazas", required=True, default=15)
 
-    # Curso base
+    # VD1 Curso base
     curso_id = fields.Many2one("eduodoo.curso", string="Curso", required=True, ondelete="restrict")
 
     # Grupo / horario (Mañana / Tarde / Grupo A...)
@@ -27,7 +30,7 @@ class EduodooSesion(models.Model):
     # Profesor asignado a la convocatoria
     profesor_id = fields.Many2one("eduodoo.profesor", string="Profesor", ondelete="restrict")
 
-    # Matrículas asociadas (quién se ha inscrito a esta convocatoria)
+    # VD2 Matrículas asociadas (quién se ha inscrito a esta convocatoria)
     matricula_ids = fields.One2many(
         comodel_name="eduodoo.matricula",
         inverse_name="sesion_id",
@@ -41,6 +44,36 @@ class EduodooSesion(models.Model):
         compute="_compute_alumno_ids",
         store=False,
     )
+
+    # -------------------------------
+    # Semana 2: Campos computados
+    # -------------------------------
+
+    # Número de plazas ocupadas: cuántas matrículas hay en la sesión
+    plazas_ocupadas = fields.Integer(
+        string="Plazas ocupadas",
+        compute="_compute_ocupacion",
+        store=True,
+    )
+
+    # Porcentaje de ocupación: ocupadas vs totales (0 a 100)
+    porcentaje_ocupacion = fields.Float(
+        string="% Ocupación",
+        compute="_compute_ocupacion",
+        store=True,
+        digits=(16, 2),
+    )
+
+    # Para la vista: saber si está completa (así podemos “pintarla” en rojo en el XML)
+    esta_llena = fields.Boolean(
+        string="Sesión llena",
+        compute="_compute_ocupacion",
+        store=True,
+    )
+
+    # -------------------------------
+    # Compute name / alumnos
+    # -------------------------------
 
     @api.depends("curso_id", "curso_id.name", "fecha_inicio", "clase_id", "clase_id.nombre")
     def _compute_name(self):
@@ -60,8 +93,70 @@ class EduodooSesion(models.Model):
 
             rec.name = " - ".join(partes) if partes else "Convocatoria"
 
-
     @api.depends("matricula_ids.alumno_id")
     def _compute_alumno_ids(self):
         for rec in self:
             rec.alumno_ids = rec.matricula_ids.mapped("alumno_id")
+
+    @api.depends("matricula_ids", "asientos")
+    def _compute_ocupacion(self):
+        """
+        Calcula:
+        - plazas_ocupadas: nº de matrículas
+        - porcentaje_ocupacion: (ocupadas / asientos) * 100
+        - esta_llena: True si ya no quedan plazas
+        """
+        for rec in self:
+            ocupadas = len(rec.matricula_ids)
+            rec.plazas_ocupadas = ocupadas
+
+            if rec.asientos and rec.asientos > 0:
+                rec.porcentaje_ocupacion = (ocupadas / rec.asientos) * 100.0
+            else:
+                rec.porcentaje_ocupacion = 0.0
+
+            rec.esta_llena = bool(rec.asientos and ocupadas >= rec.asientos)
+
+    # -------------------------------
+    # Semana 2: Validaciones (constrains)
+    # -------------------------------
+
+    @api.constrains("matricula_ids", "asientos")
+    def _check_no_superar_asientos(self):
+        for rec in self:
+            if rec.asientos is not None and rec.asientos >= 0:
+                if len(rec.matricula_ids) > rec.asientos:
+                    raise ValidationError("No se puede superar el número de plazas disponibles en la sesión.")
+
+    @api.constrains("profesor_id", "fecha_inicio", "duracion_horas")
+    def _check_profesor_no_doble_sesion(self):
+        """
+        No permitir que un profesor tenga dos sesiones (convocatorias) solapadas en el tiempo.
+        Regla de solape:
+          - (otra_inicio < this_fin) AND (otra_fin > this_inicio)
+        """
+        for rec in self:
+            if not rec.profesor_id or not rec.fecha_inicio:
+                continue
+
+            dur = rec.duracion_horas or 0.0
+            fin = rec.fecha_inicio + timedelta(hours=dur)
+
+            # Buscamos TODAS las otras sesiones del profesor y comprobamos solape en Python (simple y fiable)
+            otras = self.search([
+                ("profesor_id", "=", rec.profesor_id.id),
+                ("id", "!=", rec.id),
+                ("fecha_inicio", "!=", False),
+            ])
+
+            for otra in otras:
+                otra_dur = otra.duracion_horas or 0.0
+                otra_fin = otra.fecha_inicio + timedelta(hours=otra_dur)
+
+                solapa = (otra.fecha_inicio < fin) and (otra_fin > rec.fecha_inicio)
+                if solapa:
+                    raise ValidationError(
+                        "El profesor ya tiene otra sesión asignada que coincide en horario.\n"
+                        f"- Sesión actual: {rec.name}\n"
+                        f"- Sesión existente: {otra.name}"
+                    )

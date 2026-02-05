@@ -35,12 +35,14 @@
             <notebook>
               <page string="Sesiones">
                 <field name="sesion_ids">
-                  <list>
+                  <list decoration-danger="esta_llena">
                     <field name="fecha_inicio"/>
                     <field name="duracion_horas"/>
                     <field name="clase_id"/>
                     <field name="profesor_id"/>
                     <field name="asientos"/>
+                    <field name="plazas_ocupadas"/>
+                    <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}"/>
                   </list>
                 </field>
               </page>
@@ -64,12 +66,14 @@
       <field name="name">eduodoo.sesion.list</field>
       <field name="model">eduodoo.sesion</field>
       <field name="arch" type="xml">
-        <list>
+        <list decoration-danger="esta_llena">
           <field name="name"/>
           <field name="curso_id"/>
           <field name="clase_id"/>
           <field name="profesor_id"/>
           <field name="asientos"/>
+          <field name="plazas_ocupadas"/>
+          <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}"/>
         </list>
       </field>
     </record>
@@ -81,7 +85,6 @@
         <form string="Sesión">
           <sheet>
 
-            <!-- Nombre computado (para que se vea claro arriba) -->
             <group>
               <field name="name" readonly="1"/>
             </group>
@@ -91,10 +94,16 @@
               <field name="clase_id"/>
               <field name="profesor_id"/>
             </group>
+
             <group>
               <field name="fecha_inicio"/>
               <field name="duracion_horas"/>
               <field name="asientos"/>
+            </group>
+
+            <group string="Ocupación">
+              <field name="plazas_ocupadas" readonly="1"/>
+              <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" readonly="1"/>
             </group>
 
             <notebook>
@@ -103,6 +112,7 @@
                   <list editable="bottom">
                     <field name="alumno_id"/>
                     <field name="fecha_matricula"/>
+                    <field name="state"/>
                     <field name="estado_pago"/>
                   </list>
                 </field>
@@ -157,6 +167,7 @@
                   <list editable="bottom">
                     <field name="sesion_id"/>
                     <field name="fecha_matricula"/>
+                    <field name="state"/>
                     <field name="estado_pago"/>
                   </list>
                 </field>
@@ -201,11 +212,13 @@
 
             <group string="Sesiones">
               <field name="sesion_ids">
-                <list>
+                <list decoration-danger="esta_llena">
                   <field name="fecha_inicio"/>
                   <field name="curso_id"/>
                   <field name="profesor_id"/>
                   <field name="asientos"/>
+                  <field name="plazas_ocupadas"/>
+                  <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}"/>
                 </list>
               </field>
             </group>
@@ -335,6 +348,7 @@
           <field name="alumno_id"/>
           <field name="sesion_id"/>
           <field name="fecha_matricula"/>
+          <field name="state"/>
           <field name="estado_pago"/>
         </list>
       </field>
@@ -346,17 +360,27 @@
       <field name="arch" type="xml">
         <form string="Matrícula">
 
-          <!-- BOTÓN -->
           <header>
+            <button name="action_confirmar"
+                    string="Confirmar"
+                    type="object"
+                    class="btn-primary"
+                    invisible="state != 'draft'"/>
+
+            <button name="action_marcar_pagada"
+                    string="Marcar como pagada"
+                    type="object"
+                    class="btn-success"
+                    invisible="state != 'confirmada'"/>
+
             <button name="action_crear_factura"
                     string="Crear / Ver factura"
                     type="object"
-                    class="btn-primary"/>
+                    class="btn-secondary"/>
           </header>
 
           <sheet>
 
-            <!-- Nombre computado (para que no salga “sin nombre” y se vea arriba) -->
             <group>
               <field name="name" readonly="1"/>
             </group>
@@ -368,10 +392,10 @@
 
             <group>
               <field name="fecha_matricula"/>
+              <field name="state" readonly="1"/>
               <field name="estado_pago"/>
             </group>
 
-            <!-- OPCIONAL (recomendado): pestaña para ver la factura asociada -->
             <notebook>
               <page string="Facturas">
                 <field name="factura_ids" readonly="1">
@@ -395,6 +419,7 @@
       <field name="res_model">eduodoo.matricula</field>
       <field name="view_mode">list,form</field>
     </record>
+
 
     <!-- =========================
          MENÚS
