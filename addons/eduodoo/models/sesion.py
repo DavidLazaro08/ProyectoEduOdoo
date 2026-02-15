@@ -17,6 +17,8 @@ class EduodooSesion(models.Model):
 
     # Duración total del curso en esa convocatoria (ej: 40h)
     duracion_horas = fields.Float(string="Duración total (horas)", required=True, default=40.0)
+    fecha_fin = fields.Datetime(string="Fin", compute="_compute_fecha_fin", store=True)
+
 
     # Plazas disponibles para esa convocatoria
     asientos = fields.Integer(string="Plazas", required=True, default=15)
@@ -98,6 +100,15 @@ class EduodooSesion(models.Model):
         for rec in self:
             rec.alumno_ids = rec.matricula_ids.mapped("alumno_id")
 
+    @api.depends("fecha_inicio", "duracion_horas")
+    def _compute_fecha_fin(self):
+        for rec in self:
+            if rec.fecha_inicio:
+                dur = rec.duracion_horas or 0.0
+                rec.fecha_fin = rec.fecha_inicio + timedelta(hours=dur)
+            else:
+                rec.fecha_fin = False
+
     # VS2
 
     @api.depends("matricula_ids", "asientos")
@@ -162,3 +173,20 @@ class EduodooSesion(models.Model):
                         f"- Sesión actual: {rec.name}\n"
                         f"- Sesión existente: {otra.name}"
                     )
+
+    # -------------------------------
+    # Acciones (smart buttons)
+    # -------------------------------
+    def action_view_profesor_calendar(self):
+        """
+        Abre la vista de calendario de sesiones filtrada por el profesor de esta sesión.
+        """
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Calendario de {self.profesor_id.nombre}',
+            'res_model': 'eduodoo.sesion',
+            'view_mode': 'calendar,list,form',
+            'domain': [('profesor_id', '=', self.profesor_id.id)],
+            'context': {'default_profesor_id': self.profesor_id.id},
+        }

@@ -83,6 +83,14 @@
       <field name="model">eduodoo.sesion</field>
       <field name="arch" type="xml">
         <form string="Sesión">
+          <header>
+            <button name="action_view_profesor_calendar" 
+                    string="Calendario del Profesor" 
+                    type="object" 
+                    class="oe_stat_button" 
+                    icon="fa-calendar"
+                    invisible="not profesor_id"/>
+          </header>
           <sheet>
 
             <group>
@@ -98,6 +106,7 @@
             <group>
               <field name="fecha_inicio"/>
               <field name="duracion_horas"/>
+              <field name="fecha_fin" readonly="1"/>
               <field name="asientos"/>
             </group>
 
@@ -127,10 +136,25 @@
       </field>
     </record>
 
+    <record id="view_eduodoo_sesion_calendar" model="ir.ui.view">
+      <field name="name">eduodoo.sesion.calendar</field>
+      <field name="model">eduodoo.sesion</field>
+      <field name="arch" type="xml">
+        <calendar string="Sesiones"
+                  date_start="fecha_inicio"
+                  date_stop="fecha_fin"
+                  color="profesor_id">
+            <field name="name"/>
+            <field name="curso_id"/>
+            <field name="profesor_id"/>
+        </calendar>
+      </field>
+    </record>
+
     <record id="action_eduodoo_sesion" model="ir.actions.act_window">
       <field name="name">Sesiones</field>
       <field name="res_model">eduodoo.sesion</field>
-      <field name="view_mode">list,form</field>
+      <field name="view_mode">list,calendar,form</field>
     </record>
 
 
