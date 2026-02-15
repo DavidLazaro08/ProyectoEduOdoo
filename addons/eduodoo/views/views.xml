@@ -42,7 +42,7 @@
                     <field name="profesor_id"/>
                     <field name="asientos"/>
                     <field name="plazas_ocupadas"/>
-                    <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" sum="0" avg="1"/>
+                    <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" avg="1"/>
                   </list>
                 </field>
               </page>
@@ -73,7 +73,7 @@
           <field name="profesor_id"/>
           <field name="asientos"/>
           <field name="plazas_ocupadas"/>
-          <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" sum="0" avg="1"/>
+          <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" avg="1"/>
         </list>
       </field>
     </record>
@@ -82,11 +82,11 @@
       <field name="name">eduodoo.sesion.form</field>
       <field name="model">eduodoo.sesion</field>
       <field name="arch" type="xml">
-        <form string="Sesión">
+        <form string="Convocatoria">
           <sheet>
             <div class="oe_button_box" name="button_box">
               <button name="action_view_profesor_calendar"
-                      string="Calendario del Profesor"
+                      string="Calendario del profesor"
                       type="object"
                       class="oe_stat_button"
                       icon="fa-calendar"
@@ -112,7 +112,7 @@
 
             <group string="Ocupación">
               <field name="plazas_ocupadas" readonly="1"/>
-              <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" readonly="1" sum="0" avg="1"/>
+              <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" readonly="1"/>
             </group>
 
             <notebook>
@@ -163,7 +163,7 @@
           <field name="profesor_id"/>
           <field name="fecha_inicio"/>
           <field name="fecha_fin"/>
-          <field name="porcentaje_ocupacion" sum="0" avg="1"/>
+          <field name="porcentaje_ocupacion" avg="1"/>
           <field name="esta_llena"/>
 
           <templates>
@@ -202,7 +202,7 @@
 
                   <div style="margin-top:8px;">
                     <span style="font-weight:600;">Ocupación:</span>
-                    <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" sum="0" avg="1"/>
+                    <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" avg="1"/>
                   </div>
 
                   <t t-if="record.esta_llena.raw_value">
@@ -223,6 +223,7 @@
       <field name="name">Sesiones</field>
       <field name="res_model">eduodoo.sesion</field>
       <field name="view_mode">list,kanban,calendar,form</field>
+      <!-- Abrimos sesiones agrupadas por profesor para tener una visión rápida por docente -->
       <field name="context">{'group_by': 'profesor_id'}</field>
     </record>
 
@@ -311,7 +312,7 @@
                   <field name="profesor_id"/>
                   <field name="asientos"/>
                   <field name="plazas_ocupadas"/>
-                  <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" sum="0" avg="1"/>
+                  <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" avg="1"/>
                 </list>
               </field>
             </group>
