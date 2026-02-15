@@ -83,15 +83,15 @@
       <field name="model">eduodoo.sesion</field>
       <field name="arch" type="xml">
         <form string="Sesión">
-          <header>
-            <button name="action_view_profesor_calendar" 
-                    string="Calendario del Profesor" 
-                    type="object" 
-                    class="oe_stat_button" 
-                    icon="fa-calendar"
-                    invisible="not profesor_id"/>
-          </header>
           <sheet>
+            <div class="oe_button_box" name="button_box">
+              <button name="action_view_profesor_calendar"
+                      string="Calendario del Profesor"
+                      type="object"
+                      class="oe_stat_button"
+                      icon="fa-calendar"
+                      invisible="not profesor_id"/>
+            </div>
 
             <group>
               <field name="name" readonly="1"/>
@@ -151,10 +151,79 @@
       </field>
     </record>
 
+    <record id="view_eduodoo_sesion_kanban" model="ir.ui.view">
+      <field name="name">eduodoo.sesion.kanban</field>
+      <field name="model">eduodoo.sesion</field>
+      <field name="arch" type="xml">
+        <kanban class="o_kanban_small_column">
+          <!-- Campos que usaremos dentro de la tarjeta -->
+          <field name="name"/>
+          <field name="curso_id"/>
+          <field name="clase_id"/>
+          <field name="profesor_id"/>
+          <field name="fecha_inicio"/>
+          <field name="fecha_fin"/>
+          <field name="porcentaje_ocupacion"/>
+          <field name="esta_llena"/>
+
+          <templates>
+            <t t-name="kanban-box">
+              <div class="oe_kanban_global_click o_kanban_record">
+                <div class="o_kanban_card_header">
+                  <strong>
+                    <field name="name"/>
+                  </strong>
+                </div>
+
+                <div class="o_kanban_card_content">
+                  <div>
+                    <span style="font-weight:600;">Curso:</span>
+                    <field name="curso_id"/>
+                  </div>
+
+                  <div>
+                    <span style="font-weight:600;">Profesor:</span>
+                    <field name="profesor_id"/>
+                  </div>
+
+                  <div>
+                    <span style="font-weight:600;">Grupo:</span>
+                    <field name="clase_id"/>
+                  </div>
+
+                  <div style="margin-top:6px;">
+                    <span style="font-weight:600;">Inicio:</span>
+                    <field name="fecha_inicio"/>
+                  </div>
+                  <div>
+                    <span style="font-weight:600;">Fin:</span>
+                    <field name="fecha_fin"/>
+                  </div>
+
+                  <div style="margin-top:8px;">
+                    <span style="font-weight:600;">Ocupación:</span>
+                    <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}"/>
+                  </div>
+
+                  <t t-if="record.esta_llena.raw_value">
+                    <div style="margin-top:8px;">
+                      <span class="badge text-bg-danger">LLENA</span>
+                    </div>
+                  </t>
+                </div>
+              </div>
+            </t>
+          </templates>
+        </kanban>
+      </field>
+    </record>
+
+
     <record id="action_eduodoo_sesion" model="ir.actions.act_window">
       <field name="name">Sesiones</field>
       <field name="res_model">eduodoo.sesion</field>
-      <field name="view_mode">list,calendar,form</field>
+      <field name="view_mode">list,kanban,calendar,form</field>
+      <field name="context">{'group_by': 'profesor_id'}</field>
     </record>
 
 

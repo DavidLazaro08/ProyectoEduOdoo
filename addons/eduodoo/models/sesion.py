@@ -180,13 +180,34 @@ class EduodooSesion(models.Model):
     def action_view_profesor_calendar(self):
         """
         Abre la vista de calendario de sesiones filtrada por el profesor de esta sesión.
+        Muestra sesiones en un rango de ±30 días desde la fecha de inicio de esta sesión.
         """
         self.ensure_one()
+        context = {
+            'default_profesor_id': self.profesor_id.id,
+            'search_default_profesor_id': self.profesor_id.id,
+        }
+        
+        # Domain base: filtrar por profesor
+        domain = [('profesor_id', '=', self.profesor_id.id)]
+        
+        # Añadir filtro de rango de fechas si existe fecha_inicio
+        if self.fecha_inicio:
+            context['default_fecha_inicio'] = self.fecha_inicio
+            context['initial_date'] = self.fecha_inicio.date()
+            # Filtrar sesiones en un rango de ±30 días
+            fecha_min = self.fecha_inicio - timedelta(days=30)
+            fecha_max = self.fecha_inicio + timedelta(days=30)
+            domain.extend([
+                ('fecha_inicio', '>=', fecha_min),
+                ('fecha_inicio', '<=', fecha_max),
+            ])
+        
         return {
             'type': 'ir.actions.act_window',
             'name': f'Calendario de {self.profesor_id.nombre}',
             'res_model': 'eduodoo.sesion',
             'view_mode': 'calendar,list,form',
-            'domain': [('profesor_id', '=', self.profesor_id.id)],
-            'context': {'default_profesor_id': self.profesor_id.id},
+            'domain': domain,
+            'context': context,
         }
