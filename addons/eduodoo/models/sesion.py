@@ -1,38 +1,39 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
-from odoo.exceptions import ValidationError
 from datetime import timedelta
 
+from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 
-# Sesión (Convocatoria/Edición del curso):
-# Un curso puede abrir varias convocatorias (grupo tarde/mañana, fechas, plazas, profe...)
+
+# Convocatoria (Sesión)
+# Una convocatoria es una edición concreta de un curso: fechas, grupo/horario, plazas y profesor.
+# De aquí cuelgan las matrículas y se calcula la ocupación.
+#
+# En el proyecto (por semanas):
+# - Semana 1: modelo y relaciones (curso/grupo/profesor/matrículas).
+# - Semana 2: ocupación (computados) y validaciones (plazas y solapes).
+# - Semana 3: soporte para vistas avanzadas (fechas fin + acción de calendario por profesor).
 class EduodooSesion(models.Model):
     _name = "eduodoo.sesion"
     _description = "Convocatoria"
 
+    # Nombre calculado para que sea identificable en listas y búsquedas
     name = fields.Char(string="Convocatoria", compute="_compute_name", store=True)
 
-    # Fecha de inicio de la convocatoria (inicio del curso para ese grupo)
+    # Fechas de la convocatoria
     fecha_inicio = fields.Datetime(string="Inicio", required=True)
-
-    # Duración total del curso en esa convocatoria (ej: 40h)
     duracion_horas = fields.Float(string="Duración total (horas)", required=True, default=40.0)
     fecha_fin = fields.Datetime(string="Fin", compute="_compute_fecha_fin", store=True)
 
-
-    # Plazas disponibles para esa convocatoria
+    # Plazas disponibles
     asientos = fields.Integer(string="Plazas", required=True, default=15)
 
-    # VD1 Curso base
+    # Relación con curso, grupo y profesor
     curso_id = fields.Many2one("eduodoo.curso", string="Curso", required=True, ondelete="restrict")
-
-    # Grupo / horario (Mañana / Tarde / Grupo A...)
     clase_id = fields.Many2one("eduodoo.clase", string="Grupo / Horario", ondelete="restrict")
-
-    # Profesor asignado a la convocatoria
     profesor_id = fields.Many2one("eduodoo.profesor", string="Profesor", ondelete="restrict")
 
-    # VD2 Matrículas asociadas (quién se ha inscrito a esta convocatoria)
+    # Matrículas asociadas a esta convocatoria
     matricula_ids = fields.One2many(
         comodel_name="eduodoo.matricula",
         inverse_name="sesion_id",
@@ -47,36 +48,31 @@ class EduodooSesion(models.Model):
         store=False,
     )
 
-    # -------------------------------
-    # Semana 2: Campos computados
-    # -------------------------------
-    # VS2
-    # Número de plazas ocupadas: cuántas matrículas hay en la sesión
+    # Ocupación
     plazas_ocupadas = fields.Integer(
         string="Plazas ocupadas",
         compute="_compute_ocupacion",
         store=True,
     )
 
-    # Porcentaje de ocupación: ocupadas vs totales (0 a 100)
     porcentaje_ocupacion = fields.Float(
         string="% Ocupación",
         compute="_compute_ocupacion",
         store=True,
         digits=(16, 2),
+        group_operator=False,  # Es un porcentaje: no tiene sentido que se sume al agrupar
     )
 
-    # Para la vista: saber si está completa (así podemos “pintarla” en rojo en el XML)
+    # Para pintar la sesión como “llena” en listas / embebidos
     esta_llena = fields.Boolean(
         string="Sesión llena",
         compute="_compute_ocupacion",
         store=True,
     )
 
-    # -------------------------------
-    # Compute name / alumnos
-    # -------------------------------
-   
+    # -------------------------------------------------------------------------
+    # Computes
+    # -------------------------------------------------------------------------
     @api.depends("curso_id", "curso_id.name", "fecha_inicio", "clase_id", "clase_id.nombre")
     def _compute_name(self):
         for rec in self:
@@ -109,8 +105,6 @@ class EduodooSesion(models.Model):
             else:
                 rec.fecha_fin = False
 
-    # VS2
-
     @api.depends("matricula_ids", "asientos")
     def _compute_ocupacion(self):
         """
@@ -130,10 +124,9 @@ class EduodooSesion(models.Model):
 
             rec.esta_llena = bool(rec.asientos and ocupadas >= rec.asientos)
 
-    # -------------------------------
-    # Semana 2: Validaciones (constrains)
-    # -------------------------------
-
+    # -------------------------------------------------------------------------
+    # Validaciones
+    # -------------------------------------------------------------------------
     @api.constrains("matricula_ids", "asientos")
     def _check_no_superar_asientos(self):
         for rec in self:
@@ -144,9 +137,9 @@ class EduodooSesion(models.Model):
     @api.constrains("profesor_id", "fecha_inicio", "duracion_horas")
     def _check_profesor_no_doble_sesion(self):
         """
-        No permitir que un profesor tenga dos sesiones (convocatorias) solapadas en el tiempo.
+        Evita que un profesor tenga dos convocatorias solapadas en el tiempo.
         Regla de solape:
-          - (otra_inicio < this_fin) AND (otra_fin > this_inicio)
+          - (otra_inicio < fin_actual) AND (otra_fin > inicio_actual)
         """
         for rec in self:
             if not rec.profesor_id or not rec.fecha_inicio:
@@ -155,7 +148,7 @@ class EduodooSesion(models.Model):
             dur = rec.duracion_horas or 0.0
             fin = rec.fecha_inicio + timedelta(hours=dur)
 
-            # Buscamos TODAS las otras sesiones del profesor y comprobamos solape en Python (simple y fiable)
+            # Buscamos otras sesiones del mismo profesor y comprobamos solape en Python (simple y claro)
             otras = self.search([
                 ("profesor_id", "=", rec.profesor_id.id),
                 ("id", "!=", rec.id),
@@ -174,40 +167,39 @@ class EduodooSesion(models.Model):
                         f"- Sesión existente: {otra.name}"
                     )
 
-    # -------------------------------
-    # Acciones (smart buttons)
-    # -------------------------------
+    # -------------------------------------------------------------------------
+    # Acciones
+    # -------------------------------------------------------------------------
     def action_view_profesor_calendar(self):
         """
         Abre la vista de calendario de sesiones filtrada por el profesor de esta sesión.
-        Muestra sesiones en un rango de ±30 días desde la fecha de inicio de esta sesión.
+        Si hay fecha de inicio, muestra un rango aproximado de ±30 días.
         """
         self.ensure_one()
+
         context = {
-            'default_profesor_id': self.profesor_id.id,
-            'search_default_profesor_id': self.profesor_id.id,
+            "default_profesor_id": self.profesor_id.id,
+            "search_default_profesor_id": self.profesor_id.id,
         }
-        
-        # Domain base: filtrar por profesor
-        domain = [('profesor_id', '=', self.profesor_id.id)]
-        
-        # Añadir filtro de rango de fechas si existe fecha_inicio
+
+        domain = [("profesor_id", "=", self.profesor_id.id)]
+
         if self.fecha_inicio:
-            context['default_fecha_inicio'] = self.fecha_inicio
-            context['initial_date'] = self.fecha_inicio.date()
-            # Filtrar sesiones en un rango de ±30 días
+            context["default_fecha_inicio"] = self.fecha_inicio
+            context["initial_date"] = self.fecha_inicio.date()
+
             fecha_min = self.fecha_inicio - timedelta(days=30)
             fecha_max = self.fecha_inicio + timedelta(days=30)
             domain.extend([
-                ('fecha_inicio', '>=', fecha_min),
-                ('fecha_inicio', '<=', fecha_max),
+                ("fecha_inicio", ">=", fecha_min),
+                ("fecha_inicio", "<=", fecha_max),
             ])
-        
+
         return {
-            'type': 'ir.actions.act_window',
-            'name': f'Calendario de {self.profesor_id.nombre}',
-            'res_model': 'eduodoo.sesion',
-            'view_mode': 'calendar,list,form',
-            'domain': domain,
-            'context': context,
+            "type": "ir.actions.act_window",
+            "name": f"Calendario de {self.profesor_id.nombre}",
+            "res_model": "eduodoo.sesion",
+            "view_mode": "calendar,list,form",
+            "domain": domain,
+            "context": context,
         }

@@ -1,12 +1,20 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
+from odoo import api, fields, models
 
-# Factura: registro simple de pago asociado a una matrícula.
+
+# Factura
+# Registro simple de pago asociado a una matrícula. No pretende ser contabilidad real,
+# solo una forma de dejar constancia del cobro dentro del módulo.
+#
+# En el proyecto (por semanas):
+# - Semana 1: modelo y relaciones (matrícula / alumno / sesión).
+# - Semana 2: restricción de “una factura por matrícula” y nombre calculado.
 class EduodooFactura(models.Model):
     _name = "eduodoo.factura"
     _description = "Factura"
     _rec_name = "name"
 
+    # Nombre calculado para que sea identificable en listados
     name = fields.Char(string="Factura", compute="_compute_name", store=True)
 
     matricula_id = fields.Many2one(
@@ -16,7 +24,7 @@ class EduodooFactura(models.Model):
         ondelete="restrict",
     )
 
-    # Campos "relacionados" para no duplicar datos:
+    # Datos derivados de la matrícula (para evitar duplicar y tener filtros cómodos)
     alumno_id = fields.Many2one(
         comodel_name="eduodoo.alumno",
         string="Alumno",
@@ -34,13 +42,16 @@ class EduodooFactura(models.Model):
     )
 
     cantidad = fields.Float(string="Cantidad", required=True, default=0.0)
-    fecha_pago = fields.Date(string="Fecha de pago")  # editable
+    fecha_pago = fields.Date(string="Fecha de pago")
     concepto = fields.Char(string="Concepto")
 
     _sql_constraints = [
         ("factura_matricula_unica", "unique(matricula_id)", "Esta matrícula ya tiene una factura."),
     ]
 
+    # -------------------------------------------------------------------------
+    # Compute
+    # -------------------------------------------------------------------------
     @api.depends(
         "matricula_id.name",
         "fecha_pago",
@@ -51,7 +62,4 @@ class EduodooFactura(models.Model):
     def _compute_name(self):
         for rec in self:
             base = rec.matricula_id.name or "Factura"
-            if rec.fecha_pago:
-                rec.name = f"{base} ({rec.fecha_pago})"
-            else:
-                rec.name = base
+            rec.name = f"{base} ({rec.fecha_pago})" if rec.fecha_pago else base

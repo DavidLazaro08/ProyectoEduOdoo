@@ -1,20 +1,26 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
+from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
 
+# Matrícula
+# Une a un alumno con una convocatoria (sesión). Aquí gestionamos el flujo de estado
+# (borrador -> confirmada -> pagada), la sincronía con el estado de pago y la factura.
+#
+# En el proyecto (por semanas):
+# - Semana 1: modelo y relaciones (alumno/sesión/facturas).
+# - Semana 2: flujo de estados, validación de plazas y creación/consulta de factura.
 class EduodooMatricula(models.Model):
     _name = "eduodoo.matricula"
     _description = "Matrícula"
     _rec_name = "name"
 
-    # Nombre calculado para que el registro se identifique fácil
+    # Nombre calculado para identificar la matrícula fácilmente
     name = fields.Char(string="Matrícula", compute="_compute_name", store=True)
 
-    # -------------------------------
-    # Semana 2: Flujo de estados
-    # -------------------------------
-     # VS2
+    # -------------------------------------------------------------------------
+    # Flujo de estados
+    # -------------------------------------------------------------------------
     state = fields.Selection(
         selection=[
             ("draft", "Borrador"),
@@ -45,6 +51,9 @@ class EduodooMatricula(models.Model):
         string="Facturas",
     )
 
+    # -------------------------------------------------------------------------
+    # Computes / restricciones
+    # -------------------------------------------------------------------------
     @api.depends("alumno_id", "sesion_id")
     def _compute_name(self):
         for rec in self:
@@ -56,9 +65,9 @@ class EduodooMatricula(models.Model):
         ("matricula_unica", "unique(alumno_id, sesion_id)", "Este alumno ya está matriculado en esta sesión."),
     ]
 
-    # -------------------------------
-    # Semana 2: Validación plazas (extra robusto)
-    # -------------------------------
+    # -------------------------------------------------------------------------
+    # Validación de plazas
+    # -------------------------------------------------------------------------
     @api.constrains("sesion_id")
     def _check_sesion_con_plazas(self):
         for rec in self:
@@ -66,24 +75,20 @@ class EduodooMatricula(models.Model):
                 continue
 
             sesion = rec.sesion_id
-            # contamos matrículas reales de esa sesión
+            # Contamos las matrículas actuales de esa sesión (incluye la presente si ya está guardada)
             total = self.search_count([("sesion_id", "=", sesion.id)])
 
-            # si al incluir esta matrícula, superamos asientos -> error
             if sesion.asientos is not None and sesion.asientos >= 0:
                 if total > sesion.asientos:
                     raise ValidationError("No quedan plazas disponibles en esta sesión.")
 
-    # -------------------------------
+    # -------------------------------------------------------------------------
     # Sincronía simple entre flujo y pago
-    # -------------------------------
+    # -------------------------------------------------------------------------
     @api.onchange("state")
     def _onchange_state_sync_pago(self):
         for rec in self:
-            if rec.state == "pagada":
-                rec.estado_pago = "pagada"
-            else:
-                rec.estado_pago = "pendiente"
+            rec.estado_pago = "pagada" if rec.state == "pagada" else "pendiente"
 
     @api.onchange("estado_pago")
     def _onchange_pago_sync_state(self):
@@ -93,9 +98,9 @@ class EduodooMatricula(models.Model):
             elif rec.state == "pagada":
                 rec.state = "confirmada"
 
-    # -------------------------------
-    # Acciones del flujo (para botones)
-    # -------------------------------
+    # -------------------------------------------------------------------------
+    # Acciones del flujo (botones)
+    # -------------------------------------------------------------------------
     def action_confirmar(self):
         for rec in self:
             rec.state = "confirmada"
@@ -106,9 +111,9 @@ class EduodooMatricula(models.Model):
             rec.state = "pagada"
             rec.estado_pago = "pagada"
 
-    # -------------------------------
+    # -------------------------------------------------------------------------
     # Factura: crear o abrir la existente
-    # -------------------------------
+    # -------------------------------------------------------------------------
     def action_crear_factura(self):
         self.ensure_one()
 

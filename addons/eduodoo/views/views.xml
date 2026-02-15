@@ -42,7 +42,7 @@
                     <field name="profesor_id"/>
                     <field name="asientos"/>
                     <field name="plazas_ocupadas"/>
-                    <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}"/>
+                    <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" sum="0" avg="1"/>
                   </list>
                 </field>
               </page>
@@ -73,7 +73,7 @@
           <field name="profesor_id"/>
           <field name="asientos"/>
           <field name="plazas_ocupadas"/>
-          <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}"/>
+          <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" sum="0" avg="1"/>
         </list>
       </field>
     </record>
@@ -112,7 +112,7 @@
 
             <group string="Ocupación">
               <field name="plazas_ocupadas" readonly="1"/>
-              <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" readonly="1"/>
+              <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" readonly="1" sum="0" avg="1"/>
             </group>
 
             <notebook>
@@ -163,7 +163,7 @@
           <field name="profesor_id"/>
           <field name="fecha_inicio"/>
           <field name="fecha_fin"/>
-          <field name="porcentaje_ocupacion"/>
+          <field name="porcentaje_ocupacion" sum="0" avg="1"/>
           <field name="esta_llena"/>
 
           <templates>
@@ -202,7 +202,7 @@
 
                   <div style="margin-top:8px;">
                     <span style="font-weight:600;">Ocupación:</span>
-                    <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}"/>
+                    <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" sum="0" avg="1"/>
                   </div>
 
                   <t t-if="record.esta_llena.raw_value">
@@ -311,7 +311,7 @@
                   <field name="profesor_id"/>
                   <field name="asientos"/>
                   <field name="plazas_ocupadas"/>
-                  <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}"/>
+                  <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" sum="0" avg="1"/>
                 </list>
               </field>
             </group>
