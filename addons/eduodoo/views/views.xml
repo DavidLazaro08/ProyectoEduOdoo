@@ -168,45 +168,45 @@
 
           <templates>
             <t t-name="kanban-box">
-              <div class="oe_kanban_global_click o_kanban_record">
-                <div class="o_kanban_card_header">
+              <div class="oe_kanban_global_click o_kanban_record eduodoo_k_card">
+                <div class="o_kanban_card_header eduodoo_k_header">
                   <strong>
                     <field name="name"/>
                   </strong>
                 </div>
 
-                <div class="o_kanban_card_content">
-                  <div>
-                    <span style="font-weight:600;">Curso:</span>
+                <div class="o_kanban_card_content eduodoo_k_body">
+                  <div class="eduodoo_k_row">
+                    <span class="eduodoo_k_label">Curso:</span>
                     <field name="curso_id"/>
                   </div>
 
-                  <div>
-                    <span style="font-weight:600;">Profesor:</span>
+                  <div class="eduodoo_k_row">
+                    <span class="eduodoo_k_label">Profesor:</span>
                     <field name="profesor_id"/>
                   </div>
 
-                  <div>
-                    <span style="font-weight:600;">Grupo:</span>
+                  <div class="eduodoo_k_row">
+                    <span class="eduodoo_k_label">Grupo:</span>
                     <field name="clase_id"/>
                   </div>
 
-                  <div style="margin-top:6px;">
-                    <span style="font-weight:600;">Inicio:</span>
+                  <div class="eduodoo_k_row eduodoo_mt_6">
+                    <span class="eduodoo_k_label">Inicio:</span>
                     <field name="fecha_inicio"/>
                   </div>
-                  <div>
-                    <span style="font-weight:600;">Fin:</span>
+                  <div class="eduodoo_k_row">
+                    <span class="eduodoo_k_label">Fin:</span>
                     <field name="fecha_fin"/>
                   </div>
 
-                  <div style="margin-top:8px;">
-                    <span style="font-weight:600;">Ocupación:</span>
+                  <div class="eduodoo_k_progress eduodoo_mt_8">
+                    <span class="eduodoo_k_label">Ocupación:</span>
                     <field name="porcentaje_ocupacion" widget="progressbar" options="{'max_value': 100}" avg="1"/>
                   </div>
 
                   <t t-if="record.esta_llena.raw_value">
-                    <div style="margin-top:8px;">
+                    <div class="eduodoo_k_badge_wrap eduodoo_mt_8">
                       <span class="badge text-bg-danger">LLENA</span>
                     </div>
                   </t>

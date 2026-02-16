@@ -20,6 +20,11 @@ Incluye la gestión de:
         "security/ir.model.access.csv",
         "views/views.xml",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "eduodoo/static/src/css/eduodoo_backend.css",
+        ],
+    },
     "installable": True,
     "application": True,
 }
