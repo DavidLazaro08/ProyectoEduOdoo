@@ -3,7 +3,7 @@
 Módulo de Odoo 18 diseñado para la gestión integral de una academia de formación.
 Desarrollo incremental realizado por **David Gutiérrez**.
 
-## 🚀 Funcionalidades Principales
+## Funcionalidades Principales
 
 ### Semana 1: Estructura de Datos
 Definición de los modelos base del negocio:
@@ -26,7 +26,7 @@ Mejora visual mediante vistas avanzadas personalizadas:
 
 ---
 
-## 📋 Documentación Técnica: Restricciones Solucionadas
+## Documentación Técnica: Restricciones Solucionadas
 
 Tal como se solicita en el proyecto, se detallan las restricciones (`@api.constrains`) implementadas para garantizar la calidad del dato:
 
@@ -40,7 +40,7 @@ Tal como se solicita en el proyecto, se detallan las restricciones (`@api.constr
 
 ---
 
-## 🛠️ Instalación
+## Instalación
 
 1. Clonar este repositorio en tu directorio de `addons`.
 2. Actualizar la lista de aplicaciones en Odoo (modo desarrollador).
