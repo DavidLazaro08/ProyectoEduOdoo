@@ -1,0 +1,210 @@
+/* --------------------------------------------------------
+   EduOdoo - Estilos backend (tema visual)
+   Objetivo: identidad visual morada
+--------------------------------------------------------- */
+
+.o_web_client {
+    --eduodoo-c1: #667eea;  /* morado-azul */
+    --eduodoo-c2: #764ba2;  /* morado */
+    --eduodoo-text: #495057;
+    --eduodoo-border: #e9ecef;
+}
+
+/* ========================================================
+   1) NAVBAR (global)
+   ======================================================== */
+
+.o_web_client .o_main_navbar {
+    background: linear-gradient(135deg, var(--eduodoo-c1) 0%, var(--eduodoo-c2) 100%);
+}
+
+/* Items del menú: por defecto con la “capa bonita” (antes era hover) */
+.o_web_client .o_main_navbar .o_menu_sections .dropdown-toggle,
+.o_web_client .o_main_navbar .o_menu_sections .o_nav_entry {
+    background-color: rgba(255, 255, 255, 0.14);
+    border-color: transparent;
+    margin-right: 2px;
+    color: #fff;
+}
+
+/* Hover: un poco más marcado */
+.o_web_client .o_main_navbar .o_menu_sections .dropdown-toggle:hover,
+.o_web_client .o_main_navbar .o_menu_sections .o_nav_entry:hover {
+    background-color: rgba(255, 255, 255, 0.22);
+}
+
+/* Activo / abierto: aún un poco más para indicar estado */
+.o_web_client .o_main_navbar .o_menu_sections .dropdown-toggle.show,
+.o_web_client .o_main_navbar .o_menu_sections .dropdown-toggle:active,
+.o_web_client .o_main_navbar .o_menu_sections .o_nav_entry.active {
+    font-weight: 600;
+    background-color: rgba(255, 255, 255, 0.26);
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12);
+}
+
+.o_web_client .o_main_navbar,
+.o_web_client .o_main_navbar * {
+    text-shadow: 0 1px 1px rgba(0,0,0,0.18);
+}
+
+/* ========================================================
+   2) “Color marca” en UI típica (global, suave)
+   ======================================================== */
+
+.o_web_client a {
+    color: var(--eduodoo-c1);
+}
+.o_web_client a:hover {
+    color: var(--eduodoo-c2);
+}
+
+/* Botón primario */
+.o_web_client .btn.btn-primary,
+.o_web_client .o_btn_primary {
+    background-color: var(--eduodoo-c1);
+    border-color: var(--eduodoo-c1);
+}
+.o_web_client .btn.btn-primary:hover,
+.o_web_client .o_btn_primary:hover {
+    background-color: var(--eduodoo-c2);
+    border-color: var(--eduodoo-c2);
+}
+
+/* Tabs del notebook */
+.o_web_client .nav-tabs .nav-link.active,
+.o_web_client .nav-tabs .nav-item.show .nav-link {
+    color: var(--eduodoo-c2);
+    font-weight: 600;
+}
+.o_web_client .nav-tabs .nav-link:hover {
+    color: var(--eduodoo-c2);
+}
+
+/* Tags/chips (many2many_tags) */
+.o_web_client .o_tag {
+    background: rgba(102, 126, 234, 0.12);
+    color: var(--eduodoo-c2);
+    border: 1px solid rgba(102, 126, 234, 0.25);
+    border-radius: 999px;
+}
+
+/* ========================================================
+   3) Kanban EduOdoo (clases propias)
+   ======================================================== */
+
+.eduodoo_k_card {
+    background: #fff;
+    border: none;
+    border-left: 4px solid var(--eduodoo-c1);
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(102, 126, 234, 0.12);
+    padding: 14px;
+    margin-bottom: 10px;
+    transition: all 0.25s ease;
+}
+
+.eduodoo_k_card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 12px rgba(102, 126, 234, 0.20);
+    border-left-color: var(--eduodoo-c2);
+}
+
+.eduodoo_k_header {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--eduodoo-border);
+}
+
+.eduodoo_k_header strong {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--eduodoo-text);
+    line-height: 1.4;
+}
+
+.eduodoo_k_body {
+    font-size: 13px;
+    color: var(--eduodoo-text);
+    line-height: 1.5;
+}
+
+.eduodoo_k_row {
+    margin-bottom: 4px;
+    display: flex;
+    align-items: baseline;
+}
+
+.eduodoo_k_label {
+    font-weight: 600;
+    color: var(--eduodoo-c1);
+    margin-right: 6px;
+    min-width: 70px;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.eduodoo_k_progress {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--eduodoo-border);
+}
+
+.eduodoo_k_progress .eduodoo_k_label {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.eduodoo_k_badge_wrap {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.eduodoo_k_badge_wrap .badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    letter-spacing: 0.5px;
+}
+
+/* Utilidades */
+.eduodoo_mt_6 { margin-top: 6px; }
+.eduodoo_mt_8 { margin-top: 8px; }
+
+/* ========================================================
+   4) Progressbar (global): fuera del kanban también
+   ======================================================== */
+
+/* Relleno */
+.o_web_client .o_progressbar .o_progress > div {
+    background: linear-gradient(90deg, var(--eduodoo-c1) 0%, var(--eduodoo-c2) 100%);
+}
+
+/* Texto del porcentaje sin fondo */
+.o_web_client .o_progressbar .o_progressbar_value {
+    background: transparent;
+    color: var(--eduodoo-c1);
+    font-weight: 600;
+    border: none;
+    box-shadow: none;
+}
+.o_web_client .o_progressbar .o_progressbar_value > span {
+    background: transparent;
+}
+
+/* ========================================================
+   5) Listas: hover suave
+   ======================================================== */
+
+.o_web_client .o_list_view .o_data_row:hover {
+    background-color: rgba(102, 126, 234, 0.04);
+}
+
+/* ========================================================
+   6) Responsive
+   ======================================================== */
+
+@media (max-width: 768px) {
+    .eduodoo_k_card { padding: 12px; }
+    .eduodoo_k_label { min-width: 60px; font-size: 11px; }
+}
